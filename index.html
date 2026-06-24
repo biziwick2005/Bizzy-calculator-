@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+<title>Bizzy Calculator</title>
+<meta name="description" content="Bizzy Calculator — a cyberpunk-styled scientific calculator. Installable, offline-ready." />
+<meta name="theme-color" content="#0a0a14" />
+
+<link rel="manifest" href="manifest.json" />
+<link rel="icon" href="icons/icon-192.png" />
+<link rel="apple-touch-icon" href="icons/icon-192.png" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="BizzyCalc" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Chakra+Petch:wght@400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet" />
+
+<link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+<!-- ===================== AMBIENT BACKDROP ===================== -->
+<div class="backdrop" aria-hidden="true">
+  <div class="backdrop__grid"></div>
+  <div class="backdrop__glow backdrop__glow--cyan"></div>
+  <div class="backdrop__glow backdrop__glow--magenta"></div>
+  <div class="backdrop__scanline"></div>
+  <div class="backdrop__noise"></div>
+</div>
+
+<!-- ===================== BOOT / WELCOME SEQUENCE ===================== -->
+<section id="boot" class="boot" role="dialog" aria-label="Loading Bizzy Calculator">
+  <div class="boot__frame">
+    <pre id="bootLog" class="boot__log" aria-hidden="true"></pre>
+
+    <div class="boot__wordmark">
+      <h1 class="boot__title" data-text="BIZZY CALCULATOR">
+        <span aria-hidden="true">BIZZY CALCULATOR</span>
+        <span aria-hidden="true">BIZZY CALCULATOR</span>
+        BIZZY CALCULATOR
+      </h1>
+      <p class="boot__subtitle">SCIENTIFIC&nbsp;ENGINE&nbsp;//&nbsp;v1.0</p>
+    </div>
+
+    <div class="boot__bar">
+      <div class="boot__bar-fill" id="bootBarFill"></div>
+    </div>
+    <button id="bootSkip" class="boot__skip" type="button">TAP TO ENTER ▸</button>
+  </div>
+</section>
+
+<!-- ===================== CALCULATOR DEVICE ===================== -->
+<main id="app" class="app" aria-hidden="true">
+  <div class="device">
+
+    <!-- bezel rivets -->
+    <span class="rivet rivet--tl" aria-hidden="true"></span>
+    <span class="rivet rivet--tr" aria-hidden="true"></span>
+    <span class="rivet rivet--bl" aria-hidden="true"></span>
+    <span class="rivet rivet--br" aria-hidden="true"></span>
+
+    <!-- top brand strip -->
+    <header class="device__brand">
+      <span class="device__logo">BIZZY<span class="device__logo-accent">CALC</span></span>
+      <span class="device__model">fx‑CP‑X</span>
+    </header>
+
+    <!-- screen -->
+    <section class="screen" aria-label="Calculator display">
+      <div class="screen__leds">
+        <span class="led" id="ledShift" data-label="SHIFT">SHIFT</span>
+        <span class="led" id="ledInv" data-label="INV">INV</span>
+        <span class="led led--on" id="ledDeg" data-label="DEG">DEG</span>
+        <span class="led" id="ledMem" data-label="M">M</span>
+      </div>
+
+      <div class="screen__sweep" aria-hidden="true"></div>
+
+      <div class="screen__tape" id="historyTape" aria-hidden="true"></div>
+
+      <div class="screen__expr" id="exprLine" aria-live="off">0</div>
+      <div class="screen__result" id="resultLine" aria-live="polite">&nbsp;</div>
+    </section>
+
+    <!-- keypad -->
+    <section class="keypad" aria-label="Calculator keys">
+
+      <!-- row: mode keys -->
+      <div class="row row--mode">
+        <button class="key key--mode" data-action="shift" id="btnShift">SHIFT</button>
+        <button class="key key--mode" data-action="mode-toggle">DEG/RAD</button>
+        <button class="key key--mode" data-action="toggle-tape">HIST</button>
+        <button class="key key--mode key--danger" data-action="clear-all">AC</button>
+        <button class="key key--mode key--danger" data-action="del">DEL</button>
+      </div>
+
+      <!-- row: memory -->
+      <div class="row row--mem">
+        <button class="key key--fn" data-action="mc">MC</button>
+        <button class="key key--fn" data-action="mr">MR</button>
+        <button class="key key--fn" data-action="m-plus">M+</button>
+        <button class="key key--fn" data-action="m-minus">M−</button>
+        <button class="key key--fn" data-action="ans">Ans</button>
+      </div>
+
+      <!-- row: scientific 1 -->
+      <div class="row row--sci">
+        <button class="key key--fn" data-fn="sin" data-shift-fn="asin" data-base-label="sin" data-shift-label="sin⁻¹">sin</button>
+        <button class="key key--fn" data-fn="cos" data-shift-fn="acos" data-base-label="cos" data-shift-label="cos⁻¹">cos</button>
+        <button class="key key--fn" data-fn="tan" data-shift-fn="atan" data-base-label="tan" data-shift-label="tan⁻¹">tan</button>
+        <button class="key key--fn" data-action="paren-open">(</button>
+        <button class="key key--fn" data-action="paren-close">)</button>
+      </div>
+
+      <!-- row: scientific 2 -->
+      <div class="row row--sci">
+        <button class="key key--fn" data-fn="log" data-shift-fn="tenpow" data-base-label="log" data-shift-label="10ˣ">log</button>
+        <button class="key key--fn" data-fn="ln" data-shift-fn="epow" data-base-label="ln" data-shift-label="eˣ">ln</button>
+        <button class="key key--fn" data-fn="sqrt" data-shift-fn="cbrt" data-base-label="√" data-shift-label="∛">√</button>
+        <button class="key key--fn" data-action="power">x^y</button>
+        <button class="key key--fn" data-action="square" data-shift-action="inv" data-base-label="x²" data-shift-label="1/x">x²</button>
+      </div>
+
+      <!-- row: constants / extras -->
+      <div class="row row--sci">
+        <button class="key key--fn" data-action="pi">π</button>
+        <button class="key key--fn" data-action="e">e</button>
+        <button class="key key--fn" data-action="factorial">x!</button>
+        <button class="key key--fn" data-action="percent">%</button>
+        <button class="key key--fn" data-action="exp">EXP</button>
+      </div>
+
+      <!-- row: 7 8 9 / -->
+      <div class="row row--num">
+        <button class="key key--num" data-num="7">7</button>
+        <button class="key key--num" data-num="8">8</button>
+        <button class="key key--num" data-num="9">9</button>
+        <button class="key key--op" data-op="÷">÷</button>
+      </div>
+
+      <!-- row: 4 5 6 * -->
+      <div class="row row--num">
+        <button class="key key--num" data-num="4">4</button>
+        <button class="key key--num" data-num="5">5</button>
+        <button class="key key--num" data-num="6">6</button>
+        <button class="key key--op" data-op="×">×</button>
+      </div>
+
+      <!-- row: 1 2 3 - -->
+      <div class="row row--num">
+        <button class="key key--num" data-num="1">1</button>
+        <button class="key key--num" data-num="2">2</button>
+        <button class="key key--num" data-num="3">3</button>
+        <button class="key key--op" data-op="−">−</button>
+      </div>
+
+      <!-- row: 0 . Ans + -->
+      <div class="row row--num">
+        <button class="key key--num" data-num="0">0</button>
+        <button class="key key--num" data-action="decimal">.</button>
+        <button class="key key--op" data-action="negate">±</button>
+        <button class="key key--op" data-op="+">+</button>
+      </div>
+
+      <!-- row: equals -->
+      <div class="row row--eq">
+        <button class="key key--equals" data-action="equals">=</button>
+      </div>
+
+    </section>
+
+    <footer class="device__footer">
+      <span id="installHint" class="install-hint hidden">⤓ Install Bizzy Calculator</span>
+    </footer>
+  </div>
+</main>
+
+<script src="js/calc-engine.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
